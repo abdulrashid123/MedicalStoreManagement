@@ -14,7 +14,7 @@ from rest_framework.authentication import TokenAuthentication,BasicAuthenticatio
 from django.db.models import Q
 from rest_framework.authtoken.models import Token
 # Create your views here.
-
+from django.contrib.auth.models import User
 
 class TokenView(APIView):
     permission_classes = [IsAuthenticated]
@@ -209,7 +209,7 @@ class CustomerViewSet(viewsets.ViewSet):
 class EmployeeViewSet(viewsets.ViewSet):
 
     def list(self,request):
-        employee=Employee.objects.all()
+        employee=User.objects.all()
         serializer=EmployeeSerializer(employee,many=True,context={"request":request})
         response_dict={"error":False,"message":"All Company List Data","data":serializer.data}
         return Response(response_dict,status.HTTP_200_OK)

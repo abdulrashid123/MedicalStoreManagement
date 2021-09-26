@@ -4,37 +4,10 @@ from purchase.models import *
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 # Create your models here.
-from django.contrib.auth.models import PermissionsMixin
-
-from django.contrib.auth.base_user import BaseUserManager
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 
 
-class CustomUserManager(BaseUserManager):
-    """
-    Custom user model manager where email is the unique identifiers
-    for authentication instead of usernames.
-    """
-    def create_user(self, username, password, **extra_fields):
-        """
-        Create and save a User with the given email and password.
-        """
-        if not username:
-            raise ValueError(_('The Email must be set'))
-        user = self.model(username=username, **extra_fields)
-        user.set_password(password)
-        print(user)
-        user.save(using=self._db)
-        return user
 
-    def create_superuser(self, username, password, **extra_fields):
-        """
-        Create and save a SuperUser with the given email and password.
-        """
-        user = self.create_user(username,password=password)
-        user.is_admin = True
-        user.save(using=self._db)
-        return user
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -57,45 +30,7 @@ class Company(BaseModel):
         return self.name
 
 
-class Employee(AbstractBaseUser):
-    username = models.CharField(verbose_name='username', max_length=255, unique=True, blank=True, null=True)
-    name=models.CharField(max_length=255,blank=True,null=True)
-    joining_date=models.DateField(auto_now_add=True,blank=True,null=True)
-    phone=models.CharField(max_length=255,blank=True,null=True)
-    address=models.CharField(max_length=255,blank=True,null=True)
-    company = models.ForeignKey(Company,blank=True,null=True,on_delete=models.CASCADE,related_name="employee_store")
-    is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
-    objects = CustomUserManager()
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = []
 
-    def get_full_name(self):
-        # The user is identified by their email address
-        return self.username
-
-    def get_short_name(self):
-        # The user is identified by their email address
-        return self.username
-
-    def __str__(self):              # __unicode__ on Python 2
-        return self.username
-
-    def has_perm(self, perm, obj=None):
-        "Does the user have a specific permission?"
-        # Simplest possible answer: Yes, always
-        return True
-
-    def has_module_perms(self, app_label):
-        "Does the user have permissions to view the app `app_label`?"
-        # Simplest possible answer: Yes, always
-        return True
-
-    @property
-    def is_staff(self):
-        "Is the user a member of staff?"
-        # Simplest possible answer: All admins are staff
-        return self.is_admin
 class Medicine(BaseModel):
     name=models.CharField(max_length=255,blank=True,null=True)
     medical_typ=models.CharField(max_length=255,blank=True,null=True)
@@ -136,7 +71,7 @@ class Customer(BaseModel):
 class Order(BaseModel):
     customer = models.ForeignKey(Customer,blank=True,null=True,on_delete=models.CASCADE,related_name="buyer")
     company = models.ForeignKey(Company, blank=True, null=True, on_delete=models.CASCADE, related_name="store")
-    employee = models.ForeignKey(Employee,blank=True, null=True, on_delete=models.CASCADE, related_name="worker")
+    employee = models.ForeignKey(User,blank=True, null=True, on_delete=models.CASCADE, related_name="worker")
     medicine =  models.ManyToManyField(Medicine,blank=True,related_name='med')
     qty=models.IntegerField()
 

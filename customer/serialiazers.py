@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from customer.models import *
 from purchase.serializers import *
-
+from django.contrib.auth.models import User
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
@@ -55,8 +55,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Employee
-        fields = ['username','name','password','phone','address','company','joining_date']
+        model = User
+        fields = "__all__"
 
     def to_representation(self, instance):
         response=super().to_representation(instance)
