@@ -30,7 +30,8 @@ class SearchMedicine(APIView):
         asc = request.data.get('asc',None)
         if query:
             data = Medicine.objects.filter(Q(medicine__tagName__startswith=query)|Q(name__startswith=query)).distinct()
-            data.order_by('')
+            if asc:
+                data = data.order_by('sell_price')
             if data:
                 serializers = MedicineSerializer(data,many=True)
                 return Response(serializers.data,status=status.HTTP_200_OK)
