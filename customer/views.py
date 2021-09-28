@@ -216,12 +216,12 @@ class EmployeeViewSet(viewsets.ViewSet):
 
     def create(self,request):
         try:
-            user = User.objects.create_user(**request.data)
+
             serializer= EmployeeSerializer(data=request.data,context={"request":request})
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            user = User.objects.create_user(**request.data)
             dict_response={"error":False,"message":"Company Data Save Successfully"}
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_201_CREATED)
         except Exception as e:
             print(e)
             dict_response={"error":True,"message":"Error During Saving Company Data"}
