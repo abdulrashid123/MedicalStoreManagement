@@ -22,7 +22,7 @@ class TokenView(APIView):
 
     def post(self, request):
         token = Token.objects.get_or_create(user=request.user)
-        return Response({'token':token[0].key})
+        return Response({'token':token[0].key,"isAdmin":request.user.is_superuser})
 
 class SearchMedicine(APIView):
     def post(self,request):
@@ -215,8 +215,8 @@ class EmployeeViewSet(viewsets.ViewSet):
         return Response(response_dict,status.HTTP_200_OK)
 
     def create(self,request):
-        print(request.data)
         try:
+            user = User.objects.create_user(**request.data)
             serializer= EmployeeSerializer(data=request.data,context={"request":request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
