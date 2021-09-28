@@ -17,7 +17,9 @@ class BaseModel(models.Model):
         abstract = True
 
 
-
+class EmployeeDetail(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    phone = models.CharField(max_length=12,blank=True,null=True)
 class Company(BaseModel):
     name=models.CharField(max_length=255,unique=True,default="owner")
     license_no=models.CharField(max_length=255,blank=True,null=True)

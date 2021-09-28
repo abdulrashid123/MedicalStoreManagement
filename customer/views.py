@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework import status
@@ -22,7 +22,27 @@ class TokenView(APIView):
 
     def post(self, request):
         token = Token.objects.get_or_create(user=request.user)
-        return Response({'token':token[0].key,"isAdmin":request.user.is_superuser})
+        return Response({'token':token[0].key,"isAdmin":request.user.is_superuser},status=status.HTTP_200_OK)
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self,request):
+        token = Token.objects.get(user=request.user)
+        token.delete()
+        return Response(status=status.HTTP_200_OK)
+
+class UsernameView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self,request):
+        username = request.data.get('username')
+        print(request.data)
+        if User.objects.filter(username=username).exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_200_OK)
 
 class SearchMedicine(APIView):
     def post(self,request):
@@ -207,14 +227,25 @@ class CustomerViewSet(viewsets.ViewSet):
 
 
 class EmployeeViewSet(viewsets.ViewSet):
-
+    permission_classes = [IsAuthenticated,IsAdminUser]
+    authentication_classes = [TokenAuthentication]
 
     def create(self,request):
         try:
-
-            serializer= EmployeeSerializer(data=request.data,context={"request":request})
+            data = request.data
+            date = data.get("date_joined",None)
+            if date:
+                data["date_joined"] = date+" 00:00:00"
+            phone = data.pop('phone')
+            serializer= EmployeeSerializer(data=data,context={"request":request})
             serializer.is_valid(raise_exception=True)
-            user = User.objects.create_user(**request.data)
+            user = User.objects.create_user(**data)
+            if phone:
+                u = EmployeeDetail.objects.create(user=user,phone=phone)
+                u.save()
+            else:
+                u = EmployeeDetail.objects.create(user=user)
+                u.save()
             return Response(status=status.HTTP_201_CREATED)
         except Exception as e:
             print(e)

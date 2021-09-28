@@ -17,10 +17,12 @@ from django.contrib import admin
 from django.urls import path,include
 from customer.views import Sample
 from rest_framework.authtoken import views
-from customer.views import SearchMedicine,TokenView
+from customer.views import SearchMedicine,TokenView,LogoutView,UsernameView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', TokenView.as_view()),
+    path('logout/', LogoutView.as_view()),
+    path('username-exists/',UsernameView.as_view()),
     path('',include(('customer.urls','customer'),namespace='customer')),
     path('',include(('purchase.urls','purchase'),namespace='purchase')),
     path('sample/',Sample.as_view()),
