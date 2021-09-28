@@ -208,11 +208,6 @@ class CustomerViewSet(viewsets.ViewSet):
 
 class EmployeeViewSet(viewsets.ViewSet):
 
-    def list(self,request):
-        employee=User.objects.all()
-        serializer=EmployeeSerializer(employee,many=True,context={"request":request})
-        response_dict={"error":False,"message":"All Company List Data","data":serializer.data}
-        return Response(response_dict,status.HTTP_200_OK)
 
     def create(self,request):
         try:
@@ -220,7 +215,6 @@ class EmployeeViewSet(viewsets.ViewSet):
             serializer= EmployeeSerializer(data=request.data,context={"request":request})
             serializer.is_valid(raise_exception=True)
             user = User.objects.create_user(**request.data)
-            dict_response={"error":False,"message":"Company Data Save Successfully"}
             return Response(status=status.HTTP_201_CREATED)
         except Exception as e:
             print(e)
@@ -228,14 +222,14 @@ class EmployeeViewSet(viewsets.ViewSet):
             return Response(dict_response,status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
-        employee = get_object_or_404(Employee, pk=pk)
+        employee = get_object_or_404(User, pk=pk)
         serializer = EmployeeSerializer(employee, context={"request": request})
         response_dict = {"error": False, "message": "All Company List Data", "data": serializer.data}
         return Response(response_dict)
 
     def update(self, request, pk=None):
         try:
-            employee = get_object_or_404(Employee, pk=pk)
+            employee = get_object_or_404(User, pk=pk)
             serializer = EmployeeSerializer(employee, data=request.data, context={"request": request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -247,7 +241,7 @@ class EmployeeViewSet(viewsets.ViewSet):
 
     def partial_update(self, request, pk=None):
         try:
-            employee = get_object_or_404(Employee, pk=pk)
+            employee = get_object_or_404(User, pk=pk)
             serializer = EmployeeSerializer(employee, data=request.data, context={"request": request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -259,7 +253,7 @@ class EmployeeViewSet(viewsets.ViewSet):
             return Response(dict_response,status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        employee = get_object_or_404(Employee, pk=pk)
+        employee = get_object_or_404(User, pk=pk)
         employee.delete()
         return Response({"error": False, "message": "Successfully Deleted Company Data"})
 
