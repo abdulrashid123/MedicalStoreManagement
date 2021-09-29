@@ -55,7 +55,7 @@ class SearchMedicine(APIView):
             if data:
                 serializers = MedicineSerializer(data,many=True)
                 return Response(serializers.data,status=status.HTTP_200_OK)
-            return Response({"data":"No data"},status=status.HTTP_404_NOT_FOUND)
+            return Response([],status=status.HTTP_200_OK)
         return Response({"error":True,"data":"no Query present"},status=status.HTTP_400_BAD_REQUEST)
 
 class CompanyViewSet(viewsets.ViewSet):
