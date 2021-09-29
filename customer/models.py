@@ -54,8 +54,8 @@ class Medicine(BaseModel):
     unit_of_measure = models.CharField(max_length=255, blank=True, null=True) # tab,capsule,ml,gm
     description = models.CharField(max_length=255, blank=True, null=True) # silver simple blister
     schedule_drug = models.CharField(max_length=255, blank=True, null=True)
-    buyer = models.ForeignKey(Buyer,blank=True, null=True, on_delete=models.CASCADE, related_name="buyer")
-    manufacture = models.ForeignKey(ManuFacture, blank=True, null=True, on_delete=models.CASCADE, related_name="manufacture")
+    buyer = models.CharField(max_length=255, blank=True, null=True)
+    manufacture = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name
