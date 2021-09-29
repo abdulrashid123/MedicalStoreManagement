@@ -41,8 +41,8 @@ class UsernameView(APIView):
         username = request.data.get('username')
         print(request.data)
         if User.objects.filter(username=username).exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_200_OK)
+            return Response({"exists":True},status=status.HTTP_200_OK)
+        return Response({"exists":True},status=status.HTTP_200_OK)
 
 class SearchMedicine(APIView):
     def post(self,request):
