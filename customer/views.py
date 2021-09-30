@@ -45,9 +45,10 @@ class UsernameView(APIView):
         return Response({"exists":True},status=status.HTTP_200_OK)
 
 class SearchMedicine(APIView):
-    def post(self,request):
-        query = request.data.get('searchQuery',None)
-        asc = request.data.get('asc',None)
+    def get(self,request):
+        query = request.GET.get('searchQuery',None)
+        asc = request.GET.get('asc',None)
+        print(query,asc)
         if query:
             data = Medicine.objects.filter(Q(medicine__tagName__startswith=query)|Q(name__startswith=query)).distinct()
             if asc:
