@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 
 class TokenView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthentication,TokenAuthentication]
 
     def post(self, request):
         token = Token.objects.get_or_create(user=request.user)
@@ -45,6 +45,8 @@ class UsernameView(APIView):
         return Response({"exists":False},status=status.HTTP_200_OK)
 
 class SearchMedicine(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     def get(self,request):
         query = request.GET.get('searchQuery',None)
         asc = request.GET.get('asc',None)
