@@ -73,6 +73,8 @@ class CompanyViewSet(viewsets.ViewSet):
 
     def create(self,request):
         try:
+
+
             serializer= CompanySerializer(data=request.data,context={"request":request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -129,10 +131,15 @@ class MedicineViewSet(viewsets.ViewSet):
 
     def create(self,request):
         try:
-
+            tags = request.data.get('medicine_tags', None)
             serializer= MedicineSerializer(data=request.data,context={"request":request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            if tags:
+                id = serializer.data.get('id')
+                med = Medicine.objects.get(id=id)
+                for each in tags:
+                    MedicineTag.objects.create(medicine=med,tagName=each)
             dict_response={"error":False,"data": serializer.data}
         except Exception as e:
             print(e)

@@ -17,6 +17,7 @@ class MedicineTagSerializer(serializers.ModelSerializer):
         model = MedicineTag
         fields = '__all__'
         depth=1
+
 class MedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
