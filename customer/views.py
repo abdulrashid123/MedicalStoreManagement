@@ -155,10 +155,13 @@ class MedicineViewSet(viewsets.ViewSet):
     def update(self, request, pk=None):
         print(request.get_full_path())
         try:
+            tags = request.data.get('medicine_tags', None)
             medicine = get_object_or_404(Medicine, pk=pk)
             serializer = MedicineSerializer(medicine, data=request.data, context={"request": request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
+
+
             dict_response = {"error": False, "message": "Successfully Updated Medicine Data"}
             return Response(dict_response, status=status.HTTP_200_OK)
         except:
@@ -167,13 +170,21 @@ class MedicineViewSet(viewsets.ViewSet):
 
     def partial_update(self, request, pk=None):
         try:
+            tags = request.data.get('medicine_tags', None)
+            in_stock_total = request.data.pop('in_stock_total', 0)
+            free_strip = request.data.pop('free_strip', 0)
             medicine= get_object_or_404(Medicine, pk=pk)
-            medicine.in_stock_total += int(request.data.get('in_stock_total',0))
-            serializer = MedicineSerializer(medicine,data={})
+            serializer = MedicineSerializer(medicine,data=request.data,context={"request": request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            dict_response = {"error": False, "data": serializer.data}
-            return Response(dict_response,status=status.HTTP_200_OK)
+            if tags:
+                for each in tags:
+                    MedicineTag.objects.create(medicine=medicine,tagName=each)
+            medicine.in_stock_total += int(in_stock_total)
+            medicine.free_strip += int(free_strip)
+            medicine.in_single_stock_total += medicine.qty_in_strip * int(in_stock_total)
+            medicine.save()
+            return Response(status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             dict_response = {"error": True, "message": "Error During Updating medicine Data"}
