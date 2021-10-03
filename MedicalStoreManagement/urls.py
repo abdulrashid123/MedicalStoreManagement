@@ -26,5 +26,5 @@ urlpatterns = [
     path('',include(('customer.urls','customer'),namespace='customer')),
     path('',include(('purchase.urls','purchase'),namespace='purchase')),
     path('sample/',Sample.as_view()),
-    path('search/',SearchMedicine.as_view())
+    path('search',SearchMedicine.as_view())
 ]
