@@ -17,9 +17,7 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class EmployeeDetail(models.Model):
-    user = models.OneToOneField(User,on_delete=models.CASCADE)
-    phone = models.CharField(max_length=12,blank=True,null=True)
+
 class Company(BaseModel):
     name=models.CharField(max_length=255,unique=True,default="owner")
     license_no=models.CharField(max_length=255,blank=True,null=True)
@@ -30,7 +28,10 @@ class Company(BaseModel):
 
     def __str__(self):
         return self.name
-
+class EmployeeDetail(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    phone = models.CharField(max_length=12,blank=True,null=True)
+    company = models.ForeignKey(Company, blank=True, null=True, on_delete=models.CASCADE, related_name="comp")
 
 
 class Medicine(BaseModel):
@@ -45,10 +46,10 @@ class Medicine(BaseModel):
     expire_date=models.DateField(blank=True,null=True)
     mfg_date=models.DateField(blank=True,null=True)
     company = models.ForeignKey(Company, blank=True, null=True, on_delete=models.CASCADE, related_name="shop")
-    in_stock_total=models.IntegerField(blank=True,null=True)
-    in_single_stock_total = models.IntegerField(blank=True,null=True)
-    qty_in_strip=models.IntegerField(blank=True,null=True)
-    free_strip = models.IntegerField(blank=True,null=True)
+    in_stock_total=models.IntegerField(default=0)
+    in_single_stock_total = models.IntegerField(default=0)
+    qty_in_strip=models.IntegerField(default=0)
+    free_strip =models.IntegerField(default=0)
     category = models.CharField(max_length=200,blank=True,null=True)
     salt_name = models.CharField(max_length=255, blank=True, null=True)
     unit_of_measure = models.CharField(max_length=255, blank=True, null=True) # tab,capsule,ml,gm
@@ -56,6 +57,7 @@ class Medicine(BaseModel):
     schedule_drug = models.CharField(max_length=255, blank=True, null=True)
     buyer = models.CharField(max_length=255, blank=True, null=True)
     manufacture = models.CharField(max_length=255, blank=True, null=True)
+    weight = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -88,7 +90,4 @@ class MedicineTag(models.Model):
     medicine = models.ForeignKey(Medicine,blank=True, null=True, on_delete=models.CASCADE, related_name="medicine")
 
 
-@receiver(pre_save,sender=Medicine)
-def create_total_stock(sender, instance, *args, **kwargs):
-    if instance.in_stock_total and instance.qty_in_strip:
-        instance.in_single_stock_total = instance.in_stock_total * instance.qty_in_strip
+

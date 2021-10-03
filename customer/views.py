@@ -132,19 +132,25 @@ class MedicineViewSet(viewsets.ViewSet):
     def create(self,request):
         try:
             tags = request.data.get('medicine_tags', None)
+            in_stock_total = request.data.pop('in_stock_total',0)
+            free_strip = request.data.pop('free_strip',0)
             serializer= MedicineSerializer(data=request.data,context={"request":request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            id = serializer.data.get('id')
+            med = Medicine.objects.get(id=id)
             if tags:
-                id = serializer.data.get('id')
-                med = Medicine.objects.get(id=id)
                 for each in tags:
                     MedicineTag.objects.create(medicine=med,tagName=each)
-            dict_response={"error":False,"data": serializer.data}
+            med.in_stock_total += int(in_stock_total)
+            med.free_strip += int(free_strip)
+            med.in_single_stock_total += med.qty_in_strip * int(in_stock_total)
+            med.save()
+            return Response(status=status.HTTP_201_CREATED)
         except Exception as e:
             print(e)
             dict_response={"error":True,"message":"Error During Saving Company Data"}
-        return Response(dict_response)
+            return Response(dict_response)
 
     def update(self, request, pk=None):
         print(request.get_full_path())
