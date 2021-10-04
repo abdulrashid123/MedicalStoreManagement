@@ -50,7 +50,7 @@ class SearchMedicine(APIView):
     def get(self,request):
         query = request.GET.get('searchQuery',None)
         asc = request.GET.get('asc',None)
-        medicine_brands = request.GET.get('medicine_brands', None)
+        medicine_brands = request.GET.get('medicine_brand', None)
         product_form = request.GET.get('product_form', None)
         prescription_required = request.GET.get('prescription_required', None)
         age = request.GET.get('age', None)
