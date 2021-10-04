@@ -45,8 +45,8 @@ class UsernameView(APIView):
         return Response({"exists":False},status=status.HTTP_200_OK)
 
 class SearchMedicine(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
     def get(self,request):
         query = request.GET.get('searchQuery',None)
         asc = request.GET.get('asc',None)
@@ -60,7 +60,7 @@ class SearchMedicine(APIView):
             if asc:
                 data = data.order_by('-sell_price')
             if medicine_brands:
-                data = data.filter(Q(medicine_brands=medicine_brands))
+                data = data.filter(Q(medicine_brand=medicine_brands))
             if product_form:
                 data = data.filter(Q(product_form=product_form))
             if prescription_required:
