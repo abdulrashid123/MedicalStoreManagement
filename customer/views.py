@@ -50,16 +50,32 @@ class SearchMedicine(APIView):
     def get(self,request):
         query = request.GET.get('searchQuery',None)
         asc = request.GET.get('asc',None)
+        medicine_brands = request.GET.get('medicine_brands', None)
+        product_form = request.GET.get('product_form', None)
+        prescription_required = request.GET.get('prescription_required', None)
+        age = request.GET.get('age', None)
         print(query,asc)
         if query:
             data = Medicine.objects.filter(Q(medicine__tagName__startswith=query)|Q(name__startswith=query)).distinct()
             if asc:
                 data = data.order_by('-sell_price')
+            if medicine_brands:
+                data = data.filter(Q(medicine_brands=medicine_brands))
+            if product_form:
+                data = data.filter(Q(product_form=product_form))
+            if prescription_required:
+                data = data.filter(Q(prescription_required=prescription_required))
+            if age:
+                data = data.filter(Q(age=age))
             if data:
                 serializers = MedicineSerializer(data,many=True)
                 return Response(serializers.data,status=status.HTTP_200_OK)
             return Response([],status=status.HTTP_200_OK)
         return Response({"error":True,"data":"no Query present"},status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 
 class CompanyViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated] #permissions.IsAdminUser
