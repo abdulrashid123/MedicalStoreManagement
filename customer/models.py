@@ -52,11 +52,14 @@ class Medicine(BaseModel):
     free_strip =models.IntegerField(default=0)
     category = models.CharField(max_length=200,blank=True,null=True)
     salt_name = models.CharField(max_length=255, blank=True, null=True)
-    unit_of_measure = models.CharField(max_length=255, blank=True, null=True) # tab,capsule,ml,gm
+    product_form = models.CharField(max_length=255, blank=True, null=True) # tab,capsule,ml,gm
     description = models.CharField(max_length=255, blank=True, null=True) # silver simple blister
     schedule_drug = models.CharField(max_length=255, blank=True, null=True)
     buyer = models.CharField(max_length=255, blank=True, null=True)
     manufacture = models.CharField(max_length=255, blank=True, null=True)
+    medicine_brand = models.CharField(max_length=255, blank=True, null=True)
+    prescription_required = models.BooleanField(default=False)
+    age = models.CharField(max_length=255, blank=True, null=True)
     weight = models.IntegerField(default=0)
 
     def __str__(self):
