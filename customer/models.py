@@ -37,8 +37,8 @@ class EmployeeDetail(models.Model):
 class Medicine(BaseModel):
     name=models.CharField(max_length=255,blank=True,null=True)
     medical_typ=models.CharField(max_length=255,blank=True,null=True)
-    buy_price=models.CharField(max_length=255,blank=True,null=True)
-    sell_price=models.CharField(max_length=255,blank=True,null=True)
+    buy_price=models.IntegerField(default=0)
+    sell_price=models.IntegerField(default=0)
     c_gst=models.CharField(max_length=255,blank=True,null=True)
     s_gst=models.CharField(max_length=255,blank=True,null=True)
     batch_no=models.CharField(max_length=255,blank=True,null=True)
@@ -75,13 +75,13 @@ class Customer(BaseModel):
     def __str__(self):
         return self.name
 
+
 class Order(BaseModel):
     customer = models.ForeignKey(Customer,blank=True,null=True,on_delete=models.CASCADE,related_name="buyer")
     company = models.ForeignKey(Company, blank=True, null=True, on_delete=models.CASCADE, related_name="store")
     employee = models.ForeignKey(User,blank=True, null=True, on_delete=models.CASCADE, related_name="worker")
-    medicine =  models.ManyToManyField(Medicine,blank=True,related_name='med')
-    qty=models.IntegerField()
-
+    medicine = models.ManyToManyField(Medicine,blank=True,related_name='med')
+    qty = models.IntegerField()
 
     def get_total(self):
         return int(self.qty)

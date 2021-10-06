@@ -57,8 +57,10 @@ class SearchMedicine(APIView):
         print(query,asc)
         if query:
             data = Medicine.objects.filter(Q(medicine__tagName__startswith=query)|Q(name__startswith=query)).distinct()
-            if asc:
+            if asc is True:
                 data = data.order_by('-sell_price')
+            if asc is False:
+                data = data.order_by('sell_price')
             if medicine_brands:
                 data = data.filter(Q(medicine_brand=medicine_brands))
             if product_form:
@@ -89,8 +91,6 @@ class CompanyViewSet(viewsets.ViewSet):
 
     def create(self,request):
         try:
-
-
             serializer= CompanySerializer(data=request.data,context={"request":request})
             serializer.is_valid(raise_exception=True)
             serializer.save()

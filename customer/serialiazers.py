@@ -21,7 +21,7 @@ class MedicineTagSerializer(serializers.ModelSerializer):
 class MedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
-        exclude = ('in_single_stock_total','weight')
+        exclude = ('weight')
 
     def to_representation(self, instance):
         response=super().to_representation(instance)
