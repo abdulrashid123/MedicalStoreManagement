@@ -358,6 +358,7 @@ class OrderViewSet(viewsets.ViewSet):
                 order.medicine = med
                 med.in_single_stock_total -= qty
                 med.in_stock_total = (med.in_single_stock_total - qty)//med.qty_in_strip
+                med.weight += 1
                 med.save()
                 order.save()
         return Response(status=status.HTTP_201_CREATED)
