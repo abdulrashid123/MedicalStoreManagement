@@ -7,6 +7,7 @@ router.register("company",CompanyViewSet,basename="company")
 router.register("medicine",MedicineViewSet,basename="medicine")
 router.register("customer",CustomerViewSet,basename="customer")
 router.register("employee",EmployeeViewSet,basename="employee")
+router.register("order",OrderViewSet,basename="order")
 
 
 

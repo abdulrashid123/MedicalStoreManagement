@@ -22,7 +22,12 @@ class TokenView(APIView):
 
     def post(self, request):
         token = Token.objects.get_or_create(user=request.user)
-        return Response({'token':token[0].key,"isAdmin":request.user.is_superuser},status=status.HTTP_200_OK)
+        try:
+            employee = get_object_or_404(EmployeeDetail,user=request.user)
+            employee = employee.company.id
+        except:
+            employee = None
+        return Response({'token':token[0].key,"isAdmin":request.user.is_superuser,"employeeId":request.user.id,"companyId":employee},status=status.HTTP_200_OK)
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -54,12 +59,13 @@ class SearchMedicine(APIView):
         product_form = request.GET.get('product_form', None)
         prescription_required = request.GET.get('prescription_required', None)
         age = request.GET.get('age', None)
-        print(query,asc)
+        print(query,type(asc))
         if query:
             data = Medicine.objects.filter(Q(medicine__tagName__startswith=query)|Q(name__startswith=query)).distinct()
-            if asc is True:
+            if bool(asc) is True:
                 data = data.order_by('-sell_price')
-            if asc is False:
+
+            if bool(asc) is False:
                 data = data.order_by('sell_price')
             if medicine_brands:
                 data = data.filter(Q(medicine_brand=medicine_brands))
@@ -280,11 +286,13 @@ class EmployeeViewSet(viewsets.ViewSet):
             if date:
                 data["date_joined"] = date+" 00:00:00"
             phone = data.pop('phone')
+            company_id = data.pop('company')
+            company = get_object_or_404(Company,pk=company_id)
             serializer= EmployeeSerializer(data=data,context={"request":request})
             serializer.is_valid(raise_exception=True)
             user = User.objects.create_user(**data)
             if phone:
-                u = EmployeeDetail.objects.create(user=user,phone=phone)
+                u = EmployeeDetail.objects.create(user=user,phone=phone,company=company)
                 u.save()
             else:
                 u = EmployeeDetail.objects.create(user=user)
@@ -334,22 +342,24 @@ class EmployeeViewSet(viewsets.ViewSet):
 
 class OrderViewSet(viewsets.ViewSet):
 
-    def list(self,request):
-        order=Order.objects.all()
-        serializer=CustomerSerializer(order,many=True,context={"request":request})
-        response_dict={"error":False,"message":"All Company List Data","data":serializer.data}
-        return Response(response_dict,status.HTTP_200_OK)
 
     def create(self,request):
-        try:
-            serializer= OrderSerializer(data=request.data,context={"request":request})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            dict_response={"error":False,"message":"Company Data Save Successfully"}
-            return Response(dict_response, status=status.HTTP_201_CREATED)
-        except:
-            dict_response={"error":True,"message":"Error During Saving Company Data"}
-            return Response(dict_response,status.HTTP_400_BAD_REQUEST)
+        data = request.data
+        medicines = data.pop('medicines')
+        order = Order.objects.create(company_id=int(data.get('company')),employee_id=int(data.get('employee')))
+        for each in medicines:
+            id = each["id"]
+            med = get_object_or_404(Medicine,pk=id)
+            qty = each["qty"]
+            if med.in_single_stock_total < qty:
+                return Response(status=status.HTTP_412_PRECONDITION_FAILED)
+            else:
+                order.medicine = med
+                med.in_single_stock_total -= qty
+                med.in_stock_total = (med.in_single_stock_total - qty)//med.qty_in_strip
+                med.save()
+                order.save()
+        return Response(status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
         order = get_object_or_404(Order, pk=pk)

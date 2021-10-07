@@ -29,7 +29,7 @@ class Company(BaseModel):
     def __str__(self):
         return self.name
 class EmployeeDetail(models.Model):
-    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    user = models.OneToOneField(User,on_delete=models.CASCADE,related_name="comp")
     phone = models.CharField(max_length=12,blank=True,null=True)
     company = models.ForeignKey(Company, blank=True, null=True, on_delete=models.CASCADE, related_name="comp")
 
@@ -62,6 +62,8 @@ class Medicine(BaseModel):
     age = models.CharField(max_length=255, blank=True, null=True)
     weight = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ['-weight']
     def __str__(self):
         return self.name
 
@@ -77,17 +79,14 @@ class Customer(BaseModel):
 
 
 class Order(BaseModel):
-    customer = models.ForeignKey(Customer,blank=True,null=True,on_delete=models.CASCADE,related_name="buyer")
+
     company = models.ForeignKey(Company, blank=True, null=True, on_delete=models.CASCADE, related_name="store")
     employee = models.ForeignKey(User,blank=True, null=True, on_delete=models.CASCADE, related_name="worker")
-    medicine = models.ManyToManyField(Medicine,blank=True,related_name='med')
-    qty = models.IntegerField()
+    medicine = models.ForeignKey(Medicine,blank=True, null=True, on_delete=models.CASCADE, related_name="med")
+    qty = models.IntegerField(default=0)
 
-    def get_total(self):
-        return int(self.qty)
 
-    def __str__(self):
-        return f"{self.customer.name} == {self.get_total()}"
+
 class MedicineTag(models.Model):
     tagName = models.CharField(max_length=200)
     medicine = models.ForeignKey(Medicine,blank=True, null=True, on_delete=models.CASCADE, related_name="medicine")
