@@ -342,7 +342,8 @@ class EmployeeViewSet(viewsets.ViewSet):
 
 class OrderViewSet(viewsets.ViewSet):
 
-
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     def create(self,request):
         data = request.data
         medicines = data.pop('medicines')
