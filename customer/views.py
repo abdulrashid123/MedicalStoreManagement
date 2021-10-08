@@ -149,12 +149,18 @@ class CompanyViewSet(viewsets.ViewSet):
 
 
 class MedicineViewSet(viewsets.ViewSet):
-
-    def list(self,request):
-        medicine=Medicine.objects.all()
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def get(self,request,pk=None):
+        if pk:
+            med = get_object_or_404(Medicine,pk=pk)
+            serializers = MedicineSerializer(med)
+            return Response(serializers.data,status.HTTP_400_BAD_REQUEST)
+        medicine = Medicine.objects.all()
         serializer=MedicineSerializer(medicine,many=True,context={"request":request})
         response_dict={"error":False,"message":"All Medicine List Data","data":serializer.data}
         return Response(response_dict)
+
 
     def create(self,request):
         try:
@@ -352,15 +358,18 @@ class OrderViewSet(viewsets.ViewSet):
     def create(self,request):
         data = request.data
         medicines = data.pop('medicines')
-        order = Order.objects.create(company_id=int(data.get('company')),employee_id=int(data.get('employee')))
+        obj = EmployeeDetail.objects.filter(user=request.user)
+        order = Order.objects.create(company=obj[0].company,employee=request.user)
         for each in medicines:
             id = each["id"]
             med = get_object_or_404(Medicine,pk=id)
             qty = each["qty"]
             if med.in_single_stock_total < qty:
+                order.delete()
                 return Response(status=status.HTTP_412_PRECONDITION_FAILED)
             else:
                 order.medicine = med
+                order.qty = qty
                 med.in_single_stock_total -= qty
                 med.in_stock_total = (med.in_single_stock_total - qty)//med.qty_in_strip
                 med.weight += 1
