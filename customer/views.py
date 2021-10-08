@@ -58,10 +58,14 @@ class SearchMedicine(APIView):
         medicine_brands = request.GET.get('medicine_brand', None)
         product_form = request.GET.get('product_form', None)
         prescription_required = request.GET.get('prescription_required', None)
+        company_id = request.GET.get('company',None)
         age = request.GET.get('age', None)
         print(query,type(asc))
         if query:
-            data = Medicine.objects.filter(Q(medicine__tagName__startswith=query)|Q(name__startswith=query)).distinct()
+            data = Medicine.objects.filter(
+                Q(medicine__tagName__startswith=query) | Q(name__startswith=query)).distinct()
+            if company_id:
+                  data = data.filter(company_id = company_id)
             if bool(asc) is True:
                 data = data.order_by('-sell_price')
 
