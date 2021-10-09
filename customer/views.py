@@ -354,12 +354,15 @@ class EmployeeViewSet(viewsets.ViewSet):
 class OrderViewSet(viewsets.ViewSet):
 
     permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [BasicAuthentication,TokenAuthentication]
     def create(self,request):
         data = request.data
         medicines = data.pop('medicines')
-        obj = EmployeeDetail.objects.filter(user=request.user)
-        order = Order.objects.create(company=obj[0].company,employee=request.user)
+        if not request.user.is_superuser:
+            obj = EmployeeDetail.objects.filter(user=request.user)
+            order = Order.objects.create(company=obj[0].company,employee=request.user)
+        else:
+            order = Order.objects.create(company=None, employee=request.user)
         for each in medicines:
             id = each["id"]
             med = get_object_or_404(Medicine,pk=id)
