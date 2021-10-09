@@ -155,7 +155,7 @@ class MedicineViewSet(viewsets.ViewSet):
         if pk:
             med = get_object_or_404(Medicine,pk=pk)
             serializers = MedicineSerializer(med)
-            return Response(serializers.data,status.HTTP_400_BAD_REQUEST)
+            return Response(serializers.data,status.HTTP_200_OK)
         medicine = Medicine.objects.all()
         serializer=MedicineSerializer(medicine,many=True,context={"request":request})
         response_dict={"error":False,"message":"All Medicine List Data","data":serializer.data}
