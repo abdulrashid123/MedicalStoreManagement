@@ -173,7 +173,7 @@ class MedicineViewSet(viewsets.ViewSet):
             id = serializer.data.get('id')
             med = Medicine.objects.get(id=id)
             if tags:
-                tags = list(map(lambda x:x.trip(),tags.split(',')))
+                tags = list(map(lambda x:x.strip(),tags.split(',')))
                 for each in tags:
                     MedicineTag.objects.create(medicine=med,tagName=each)
             med.in_stock_total += int(in_stock_total)
