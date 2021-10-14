@@ -359,12 +359,13 @@ class OrderViewSet(viewsets.ViewSet):
     def create(self,request):
         data = request.data
         medicines = data.pop('medicines')
-        if not request.user.is_superuser:
-            obj = EmployeeDetail.objects.filter(user=request.user)
-            order = Order.objects.create(company=obj[0].company,employee=request.user)
-        else:
-            order = Order.objects.create(company=None, employee=request.user)
+
         for each in medicines:
+            if not request.user.is_superuser:
+                obj = EmployeeDetail.objects.filter(user=request.user)
+                order = Order.objects.create(company=obj[0].company, employee=request.user)
+            else:
+                order = Order.objects.create(company=None, employee=request.user)
             id = each["id"]
             med = get_object_or_404(Medicine,pk=id)
             qty = each["qty"]
