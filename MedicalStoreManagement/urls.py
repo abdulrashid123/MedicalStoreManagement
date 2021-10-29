@@ -18,6 +18,9 @@ from django.urls import path,include
 from customer.views import Sample
 from rest_framework.authtoken import views
 from customer.views import SearchMedicine,TokenView,LogoutView,UsernameView
+from ska import sign_url
+from ska.contrib.django.ska.settings import SECRET_KEY
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', TokenView.as_view()),
